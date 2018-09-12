@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/buger/jsonparser"
-	"github.com/jayden-chan/robotender-server/db"
-	"github.com/jayden-chan/robotender-server/util"
+	"github.com/jayden-chan/ctl-server/db"
+	"github.com/jayden-chan/ctl-server/util"
 )
 
 // Path: /register

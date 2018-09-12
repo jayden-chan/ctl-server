@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/jayden-chan/robotender-server/db"
+	"github.com/jayden-chan/ctl-server/db"
 )
 
 // GenerateJWT generates a JSON Web Token for the specified customer
