@@ -13,11 +13,12 @@ import (
 )
 
 // GenerateJWT generates a JSON Web Token for the specified customer
-func GenerateJWT(userID string) (string, error) {
+func GenerateJWT(userID string, access string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user": userID,
-		"nbf":  (time.Now().Add(time.Second * 2)).Unix(),
-		"iat":  time.Now().Unix(),
+		"user":   userID,
+		"access": access,
+		"nbf":    (time.Now().Add(time.Second * 2)).Unix(),
+		"iat":    time.Now().Unix(),
 	})
 
 	secretKey := []byte(os.Getenv("JWT_PRIVATE_KEY"))
@@ -28,7 +29,7 @@ func GenerateJWT(userID string) (string, error) {
 
 // Authenticate checks to see whether the provided JWT is valid
 // and that the associated customer actually exists
-func Authenticate(req *http.Request) (success bool, user string) {
+func Authenticate(req *http.Request) (success bool, user string, access string) {
 	auth := req.Header.Get("Authorization")
 	authWords := strings.Fields(auth)
 
@@ -36,24 +37,24 @@ func Authenticate(req *http.Request) (success bool, user string) {
 		return
 	}
 
-	success, user = validateJWT(authWords[1])
+	success, user, access = validateJWT(authWords[1])
 	if !success {
 		return
 	}
 
-	query := `SELECT id FROM users WHERE id = $1`
-	rows, err := db.Query(query, user)
+	query := `SELECT id FROM users WHERE id = $1 AND access = $2`
+	rows, err := db.Query(query, user, access)
 	if err != nil {
 		log.Println(err)
-		return false, user
+		return false, user, access
 	}
 	defer rows.Close()
 
 	userExists := rows.Next()
-	return userExists && success, user
+	return userExists && success, user, access
 }
 
-func validateJWT(asString string) (bool, string) {
+func validateJWT(asString string) (bool, string, string) {
 	token, err := jwt.Parse(asString, func(token *jwt.Token) (interface{}, error) {
 		// Validate that the alg is what we expect:
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -67,20 +68,25 @@ func validateJWT(asString string) (bool, string) {
 
 	if err != nil {
 		log.Println("JWT Validation error:", err)
-		return false, ""
+		return false, "", ""
 	}
 
 	if token == nil {
-		return false, ""
+		return false, "", ""
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		user, claimOK := claims["user"].(string)
 		if !claimOK {
-			return false, ""
+			return false, "", ""
 		}
-		return true, user
+
+		access, claimOK := claims["access"].(string)
+		if !claimOK {
+			return false, "", ""
+		}
+		return true, user, access
 	}
 	log.Println(err)
-	return false, ""
+	return false, "", ""
 }

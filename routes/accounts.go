@@ -64,7 +64,7 @@ func Register(res http.ResponseWriter, req *http.Request) {
 
 // URI: /deregister
 func Deregister(res http.ResponseWriter, req *http.Request) {
-	authSuccess, user := util.Authenticate(req)
+	authSuccess, user, _ := util.Authenticate(req)
 	if !authSuccess {
 		util.HTTPRes(res, "User authorization failed.", http.StatusUnauthorized)
 		return
@@ -113,7 +113,7 @@ func Login(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	rows, err := db.Query("SELECT id FROM users WHERE email = $1 AND password = crypt($2, password)", email, password)
+	rows, err := db.Query("SELECT id, access FROM users WHERE email = $1 AND password = crypt($2, password)", email, password)
 
 	if err != nil {
 		log.Println(err)
@@ -123,15 +123,12 @@ func Login(res http.ResponseWriter, req *http.Request) {
 
 	results := 0
 	userID := ""
+	userAccess := ""
 
 	defer rows.Close()
 	for rows.Next() {
 		results++
-		var (
-			id string
-		)
-		rows.Scan(&id)
-		userID = id
+		rows.Scan(&userID, &userAccess)
 	}
 
 	if results < 1 {
@@ -146,7 +143,7 @@ func Login(res http.ResponseWriter, req *http.Request) {
 		Token string `json:"token"`
 	}
 
-	token, err := util.GenerateJWT(userID)
+	token, err := util.GenerateJWT(userID, userAccess)
 	if err != nil {
 		log.Println(err)
 		util.HTTPRes(res, "An internal server error occurred.", http.StatusInternalServerError)
