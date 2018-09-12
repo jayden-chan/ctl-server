@@ -15,4 +15,4 @@
 *.swp
 
 # Binary
-ctl-server
+*ctl-server
