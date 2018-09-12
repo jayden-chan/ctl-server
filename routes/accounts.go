@@ -66,7 +66,7 @@ func Register(res http.ResponseWriter, req *http.Request) {
 func Deregister(res http.ResponseWriter, req *http.Request) {
 	authSuccess, user := util.Authenticate(req)
 	if !authSuccess {
-		util.HTTPRes(res, "Customer authorization failed.", http.StatusUnauthorized)
+		util.HTTPRes(res, "User authorization failed.", http.StatusUnauthorized)
 		return
 	}
 
@@ -78,7 +78,7 @@ func Deregister(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	util.HTTPRes(res, "Customer deleted.", http.StatusOK)
+	util.HTTPRes(res, "User deleted.", http.StatusOK)
 	return
 }
 
@@ -113,7 +113,7 @@ func Login(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	rows, err := db.Query("SELECT id FROM customers WHERE email = $1 AND password = crypt($2, password)", email, password)
+	rows, err := db.Query("SELECT id FROM users WHERE email = $1 AND password = crypt($2, password)", email, password)
 
 	if err != nil {
 		log.Println(err)
