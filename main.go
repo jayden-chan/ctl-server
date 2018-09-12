@@ -7,10 +7,15 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+
+	"github.com/jayden-chan/ctl-server/routes"
 )
 
 func main() {
 	r := mux.NewRouter()
+
+	r.HandleFunc("/register", routes.Register).Methods("POST")
+	r.HandleFunc("/login", routes.Login).Methods("POST")
 
 	port := os.Getenv("PORT")
 	if port == "" {
