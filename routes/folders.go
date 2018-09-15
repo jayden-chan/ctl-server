@@ -24,7 +24,8 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 
 	switch req.Method {
 	case http.MethodGet:
-		rows, err := db.Query("SELECT id, name, subfolder FROM folders WHERE user_id = $1", user)
+		query := `SELECT id, name, subfolder FROM folders WHERE user_id = $1`
+		rows, err := db.Query(query, user)
 		if err != nil {
 			log.Println(err)
 			util.HTTPRes(res, "An internal server error has occurred", http.StatusInternalServerError)

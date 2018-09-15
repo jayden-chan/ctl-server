@@ -42,7 +42,8 @@ func Register(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	rows, err := db.Query("SELECT * FROM users WHERE email = $1", email)
+	queryEmail := `SELECT * FROM users WHERE email = $1`
+	rows, err := db.Query(queryEmail, email)
 	if err != nil {
 		log.Println(err)
 		util.HTTPRes(res, "An internal server error has occurred", http.StatusInternalServerError)
@@ -55,7 +56,8 @@ func Register(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	_, err = db.Exec("INSERT INTO users(email, password, access) VALUES($1, crypt($2, gen_salt('bf', 8)), $3)", email, password, "normal")
+	queryInsert := `INSERT INTO users(email, password, access) VALUES($1, crypt($2, gen_salt('bf', 8)), $3)`
+	_, err = db.Exec(queryInsert, email, password, "normal")
 	if err != nil {
 		log.Println(err)
 		util.HTTPRes(res, "An internal server error has occurred", http.StatusInternalServerError)
@@ -116,7 +118,8 @@ func Login(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	rows, err := db.Query("SELECT id, access FROM users WHERE email = $1 AND password = crypt($2, password)", email, password)
+	query := `SELECT id, access FROM users WHERE email = $1 AND password = crypt($2, password)`
+	rows, err := db.Query(query, email, password)
 	if err != nil {
 		log.Println(err)
 		util.HTTPRes(res, "An internal server error occurred, please try again later", http.StatusInternalServerError)
