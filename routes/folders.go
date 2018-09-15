@@ -61,13 +61,13 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 		}
 
 		var (
-			name      string
-			subfolder sql.NullString
+			name   string
+			parent sql.NullString
 		)
 
 		paths := [][]string{
 			[]string{"name"},
-			[]string{"subfolder"},
+			[]string{"parent"},
 		}
 		jsonparser.EachKey(data, func(idx int, value []byte, vt jsonparser.ValueType, err error) {
 			switch idx {
@@ -76,8 +76,8 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 			case 1:
 				asString := string(value)
 				if asString != "" {
-					subfolder.String = asString
-					subfolder.Valid = true
+					parent.String = asString
+					parent.Valid = true
 				}
 			}
 		}, paths...)
@@ -87,8 +87,8 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		query := `INSERT INTO folders(user_id, subfolder, name) VALUES($1, $2, $3)`
-		_, err = db.Exec(query, user, subfolder, name)
+		query := `INSERT INTO folders(user_id, parent, name) VALUES($1, $2, $3)`
+		_, err = db.Exec(query, user, parent, name)
 		if err != nil {
 			log.Println(err)
 			util.HTTPRes(res, "An internal server error occurred", http.StatusInternalServerError)
@@ -107,15 +107,14 @@ func FoldersID(res http.ResponseWriter, req *http.Request) {
 		util.HTTPRes(res, "Customer authorization failed.", http.StatusUnauthorized)
 		return
 	}
+	folderID := mux.Vars(req)["folderID"]
+	if folderID == "" {
+		util.HTTPRes(res, "'Folder ID' field not found in request URI", http.StatusBadRequest)
+		return
+	}
 
 	switch req.Method {
 	case http.MethodDelete:
-		folderID := mux.Vars(req)["folderID"]
-		if folderID == "" {
-			util.HTTPRes(res, "'Folder ID' field not found in request URI", http.StatusBadRequest)
-			return
-		}
-
 		query := `DELETE from folders WHERE user_id = $1 AND id = $2`
 		results, err := db.Exec(query, user, folderID)
 		if err != nil {
@@ -130,6 +129,68 @@ func FoldersID(res http.ResponseWriter, req *http.Request) {
 		}
 
 		util.HTTPRes(res, "Item deleted", http.StatusOK)
+		return
+
+	case http.MethodPatch:
+		data, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			util.HTTPRes(res, "Malformed request data", http.StatusBadRequest)
+			return
+		}
+
+		var (
+			id     string
+			name   string
+			parent sql.NullString
+		)
+
+		paths := [][]string{
+			[]string{"id"},
+			[]string{"name"},
+			[]string{"parent"},
+		}
+
+		jsonparser.EachKey(data, func(idx int, value []byte, vt jsonparser.ValueType, err error) {
+			switch idx {
+			case 0:
+				id = string(value)
+			case 1:
+				name = string(value)
+			case 2:
+				asString := string(value)
+				if asString != "" {
+					parent.String = asString
+					parent.Valid = true
+				}
+			}
+		}, paths...)
+
+		if id == "" {
+			util.HTTPRes(res, "'ID' field not found in request body", http.StatusBadRequest)
+			return
+		}
+
+		var query string
+		if name != "" {
+			query = `UPDATE folders SET name = $1, parent = $2 WHERE user_id = $3 AND id = $4`
+		} else {
+			query = `UPDATE folders parent = $2 WHERE user_id = $3 AND id = $4`
+
+		}
+
+		results, err := db.Exec(query, name, parent, user, id)
+		if err != nil {
+			log.Println(err)
+			util.HTTPRes(res, "An internal server error occurred.", http.StatusInternalServerError)
+			return
+		}
+
+		if r, _ := results.RowsAffected(); r == 0 {
+			util.HTTPRes(res, "Folder does not exist or does not belong to user", http.StatusNotFound)
+			return
+		}
+
+		util.HTTPRes(res, "Folder updated", http.StatusOK)
 		return
 	}
 }
