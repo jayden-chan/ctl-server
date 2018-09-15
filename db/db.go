@@ -2,11 +2,43 @@ package db
 
 import (
 	"database/sql"
+	"encoding/json"
 	"log"
 	"os"
 
 	_ "github.com/lib/pq" // Blank import to make native sql package work with PostgreSQL
 )
+
+type JSONNullString struct {
+	sql.NullString
+}
+
+// MarshalJSON marshals the data based on whether it is valid
+// or not
+func (s JSONNullString) MarshalJSON() ([]byte, error) {
+	if s.Valid {
+		return json.Marshal(s.String)
+	} else {
+		return json.Marshal(nil)
+	}
+}
+
+// UnmarshalJSON takes the raw data and decides whether it is
+// valid or not, and sets the data fields accordingly
+func (s *JSONNullString) UnmarshalJSON(data []byte) error {
+	// Unmarshalling into a pointer will let us detect null
+	var x *string
+	if err := json.Unmarshal(data, &x); err != nil {
+		return err
+	}
+	if x != nil {
+		s.Valid = true
+		s.String = *x
+	} else {
+		s.Valid = false
+	}
+	return nil
+}
 
 // Query queries the database with the connection string from env vars
 func Query(query string, args ...interface{}) (*sql.Rows, error) {

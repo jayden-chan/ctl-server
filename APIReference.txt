@@ -5,5 +5,5 @@
 | /deregister  | YES   | DELETE        | Delete a user             | YES  |
 | /folders     | YES   | GET, POST     | Get or add folders        | YES  |
 | /folders/:id | YES   | DELETE, PATCH | Delete or modify a folder | YES  |
-| /items       | YES   | GET, POST     | Get or add items          | NO   |
+| /items       | YES   | GET, POST     | Get or add items          | YES  |
 | /items/:id   | YES   | DELETE, PATCH | Delete or modify items    | NO   |

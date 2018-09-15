@@ -74,11 +74,8 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 			case 0:
 				name = string(value)
 			case 1:
-				asString := string(value)
-				if asString != "" {
-					parent.String = asString
-					parent.Valid = true
-				}
+				parent.String = string(value)
+				parent.Valid = true
 			}
 		}, paths...)
 
@@ -151,11 +148,8 @@ func FoldersID(res http.ResponseWriter, req *http.Request) {
 			case 0:
 				name = string(value)
 			case 1:
-				asString := string(value)
-				if asString != "" {
-					parent.String = asString
-					parent.Valid = true
-				}
+				parent.String = string(value)
+				parent.Valid = true
 			}
 		}, paths...)
 
