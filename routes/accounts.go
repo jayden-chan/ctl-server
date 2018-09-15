@@ -11,6 +11,7 @@ import (
 )
 
 // Path: /register
+// Register registers a user in the database
 func Register(res http.ResponseWriter, req *http.Request) {
 	data, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -44,7 +45,7 @@ func Register(res http.ResponseWriter, req *http.Request) {
 	rows, err := db.Query("SELECT * FROM users WHERE email = $1", email)
 	if err != nil {
 		log.Println(err)
-		util.HTTPRes(res, "An internal server error occurred. Please try again.", http.StatusInternalServerError)
+		util.HTTPRes(res, "An internal server error has occurred", http.StatusInternalServerError)
 		return
 	}
 
@@ -57,12 +58,13 @@ func Register(res http.ResponseWriter, req *http.Request) {
 	_, err = db.Exec("INSERT INTO users(email, password, access) VALUES($1, crypt($2, gen_salt('bf', 8)), $3)", email, password, "normal")
 	if err != nil {
 		log.Println(err)
-		util.HTTPRes(res, "An internal server error occurred. Please try again.", http.StatusInternalServerError)
+		util.HTTPRes(res, "An internal server error has occurred", http.StatusInternalServerError)
 		return
 	}
 }
 
 // URI: /deregister
+// Deregister deletes a user from the database
 func Deregister(res http.ResponseWriter, req *http.Request) {
 	authSuccess, user, _ := util.Authenticate(req)
 	if !authSuccess {
@@ -83,6 +85,7 @@ func Deregister(res http.ResponseWriter, req *http.Request) {
 }
 
 // Path: /login
+// Login verifies a user's credentials and issues a JWT auth token
 func Login(res http.ResponseWriter, req *http.Request) {
 	data, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -114,7 +117,6 @@ func Login(res http.ResponseWriter, req *http.Request) {
 	}
 
 	rows, err := db.Query("SELECT id, access FROM users WHERE email = $1 AND password = crypt($2, password)", email, password)
-
 	if err != nil {
 		log.Println(err)
 		util.HTTPRes(res, "An internal server error occurred, please try again later", http.StatusInternalServerError)

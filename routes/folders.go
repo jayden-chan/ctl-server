@@ -1,15 +1,20 @@
 package routes
 
 import (
+	"database/sql"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/buger/jsonparser"
+	"github.com/gorilla/mux"
+
 	"github.com/jayden-chan/ctl-server/db"
 	"github.com/jayden-chan/ctl-server/util"
 )
 
 // URI: /folders
+// Folders returns a list of the user's folders or adds a new folder
 func Folders(res http.ResponseWriter, req *http.Request) {
 	authSuccess, user, _ := util.Authenticate(req)
 	if !authSuccess {
@@ -21,7 +26,8 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 	case http.MethodGet:
 		rows, err := db.Query("SELECT id, name, subfolder FROM folders WHERE user_id = $1", user)
 		if err != nil {
-			util.HTTPRes(res, "An internal server error occurred.", http.StatusInternalServerError)
+			log.Println(err)
+			util.HTTPRes(res, "An internal server error has occurred", http.StatusInternalServerError)
 			return
 		}
 		defer rows.Close()
@@ -40,6 +46,7 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 		for rows.Next() {
 			var r row
 			rows.Scan(&r.ID, &r.Name, &r.Subfolder)
+			ret.Results = append(ret.Results, r)
 		}
 
 		util.HTTPJSONRes(res, ret, http.StatusOK)
@@ -54,7 +61,7 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 
 		var (
 			name      string
-			subfolder string
+			subfolder sql.NullString
 		)
 
 		paths := [][]string{
@@ -66,7 +73,11 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 			case 0:
 				name = string(value)
 			case 1:
-				subfolder = string(value)
+				asString := string(value)
+				if asString != "" {
+					subfolder.String = asString
+					subfolder.Valid = true
+				}
 			}
 		}, paths...)
 
@@ -75,42 +86,46 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		if subfolder == "" {
-			query := `INSERT INTO folders(user_id, name) VALUES($1, $2)`
-			_, err := db.Exec(query, user, name)
-			if err != nil {
-				util.HTTPRes(res, "An internal server error occurred", http.StatusInternalServerError)
-				return
-			}
-
-		} else {
-			query := `INSERT INTO folders(user_id, subfolder, name) VALUES($1, $2, $3)`
-			_, err := db.Exec(query, user, subfolder, name)
-			if err != nil {
-				util.HTTPRes(res, "An internal server error occurred", http.StatusInternalServerError)
-				return
-			}
+		query := `INSERT INTO folders(user_id, subfolder, name) VALUES($1, $2, $3)`
+		_, err = db.Exec(query, user, subfolder, name)
+		if err != nil {
+			log.Println(err)
+			util.HTTPRes(res, "An internal server error occurred", http.StatusInternalServerError)
+			return
 		}
 	}
 }
 
 // URI: /folders/:id
 func FoldersID(res http.ResponseWriter, req *http.Request) {
-	authSuccess, _, _ := util.Authenticate(req)
+	authSuccess, user, _ := util.Authenticate(req)
 	if !authSuccess {
 		util.HTTPRes(res, "Customer authorization failed.", http.StatusUnauthorized)
 		return
 	}
 
-	_, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		util.HTTPRes(res, "Malformed request data", http.StatusBadRequest)
-		return
-	}
-
 	switch req.Method {
 	case http.MethodDelete:
-		util.HTTPRes(res, "Not implemented", http.StatusNotImplemented)
+		folderID := mux.Vars(req)["folderID"]
+		if folderID == "" {
+			util.HTTPRes(res, "'Folder ID' field not found in request URI", http.StatusBadRequest)
+			return
+		}
+
+		query := `DELETE from folders WHERE user_id = $1 AND id = $2`
+		results, err := db.Exec(query, user, folderID)
+		if err != nil {
+			log.Println(err)
+			util.HTTPRes(res, "An internal server error has occurred", http.StatusInternalServerError)
+			return
+		}
+
+		if r, _ := results.RowsAffected(); r <= 0 {
+			util.HTTPRes(res, "Item not found or does not belong to user", http.StatusNotFound)
+			return
+		}
+
+		util.HTTPRes(res, "Item deleted", http.StatusOK)
 		return
 	}
 }
