@@ -18,7 +18,7 @@ func main() {
 	r.HandleFunc("/login", routes.Login).Methods("POST")
 	r.HandleFunc("/deregister", routes.Deregister).Methods("DELETE")
 	r.HandleFunc("/folders", routes.Folders).Methods("GET", "POST")
-	r.HandleFunc("/folders/{folderID}", routes.Folders).Methods("DELETE")
+	r.HandleFunc("/folders/{folderID}", routes.FoldersID).Methods("DELETE", "PATCH")
 
 	port := os.Getenv("PORT")
 	if port == "" {

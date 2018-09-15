@@ -24,7 +24,7 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 
 	switch req.Method {
 	case http.MethodGet:
-		query := `SELECT id, name, subfolder FROM folders WHERE user_id = $1`
+		query := `SELECT id, name, parent FROM folders WHERE user_id = $1`
 		rows, err := db.Query(query, user)
 		if err != nil {
 			log.Println(err)
@@ -34,9 +34,9 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 		defer rows.Close()
 
 		type row struct {
-			ID        string `json:"id"`
-			Name      string `json:"name"`
-			Subfolder string `json:"subfolder"`
+			ID     string `json:"id"`
+			Name   string `json:"name"`
+			Parent string `json:"parent"`
 		}
 
 		type results struct {
@@ -46,7 +46,7 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 		var ret results
 		for rows.Next() {
 			var r row
-			rows.Scan(&r.ID, &r.Name, &r.Subfolder)
+			rows.Scan(&r.ID, &r.Name, &r.Parent)
 			ret.Results = append(ret.Results, r)
 		}
 
@@ -139,24 +139,18 @@ func FoldersID(res http.ResponseWriter, req *http.Request) {
 		}
 
 		var (
-			id     string
 			name   string
 			parent sql.NullString
 		)
-
 		paths := [][]string{
-			[]string{"id"},
 			[]string{"name"},
 			[]string{"parent"},
 		}
-
 		jsonparser.EachKey(data, func(idx int, value []byte, vt jsonparser.ValueType, err error) {
 			switch idx {
 			case 0:
-				id = string(value)
-			case 1:
 				name = string(value)
-			case 2:
+			case 1:
 				asString := string(value)
 				if asString != "" {
 					parent.String = asString
@@ -165,8 +159,8 @@ func FoldersID(res http.ResponseWriter, req *http.Request) {
 			}
 		}, paths...)
 
-		if id == "" {
-			util.HTTPRes(res, "'ID' field not found in request body", http.StatusBadRequest)
+		if parent.String == folderID {
+			util.HTTPRes(res, "Parent folder must not be the same as child folder", http.StatusBadRequest)
 			return
 		}
 
@@ -178,7 +172,7 @@ func FoldersID(res http.ResponseWriter, req *http.Request) {
 
 		}
 
-		results, err := db.Exec(query, name, parent, user, id)
+		results, err := db.Exec(query, name, parent, user, folderID)
 		if err != nil {
 			log.Println(err)
 			util.HTTPRes(res, "An internal server error occurred.", http.StatusInternalServerError)
