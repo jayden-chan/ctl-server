@@ -1,0 +1,9 @@
+| Endpoint     | Needs Auth? | Methods       | Function                  |
+| ------------ | ----------- | ------------- | ------------------------- |
+| /register    | NO          | POST          | Register a new user       |
+| /login       | NO          | POST          | Login                     |
+| /deregister  | YES         | DELETE        | Delete a user             |
+| /folders     | YES         | GET, POST     | Get or add folders        |
+| /folders/:id | YES         | DELETE, PATCH | Delete or modify a folder |
+| /items       | YES         | GET, POST     | Get or add items          |
+| /items/:id   | YES         | DELETE, PATCH | Delete or modify items    |

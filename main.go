@@ -16,6 +16,7 @@ func main() {
 
 	r.HandleFunc("/register", routes.Register).Methods("POST")
 	r.HandleFunc("/login", routes.Login).Methods("POST")
+	r.HandleFunc("/folders", routes.Folders).Methods("GET", "POST")
 
 	port := os.Getenv("PORT")
 	if port == "" {
