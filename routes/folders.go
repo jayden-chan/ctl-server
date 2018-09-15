@@ -93,6 +93,9 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 			util.HTTPRes(res, "An internal server error occurred", http.StatusInternalServerError)
 			return
 		}
+
+		util.HTTPRes(res, "Item added", http.StatusCreated)
+		return
 	}
 }
 
