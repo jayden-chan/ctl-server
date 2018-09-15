@@ -16,6 +16,7 @@ func main() {
 
 	r.HandleFunc("/register", routes.Register).Methods("POST")
 	r.HandleFunc("/login", routes.Login).Methods("POST")
+	r.HandleFunc("/deregister", routes.Deregister).Methods("DELETE")
 	r.HandleFunc("/folders", routes.Folders).Methods("GET", "POST")
 	r.HandleFunc("/folders/{folderID}", routes.Folders).Methods("DELETE")
 
