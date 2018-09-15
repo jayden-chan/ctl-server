@@ -93,3 +93,24 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 }
+
+// URI: /folders/:id
+func FoldersID(res http.ResponseWriter, req *http.Request) {
+	authSuccess, _, _ := util.Authenticate(req)
+	if !authSuccess {
+		util.HTTPRes(res, "Customer authorization failed.", http.StatusUnauthorized)
+		return
+	}
+
+	_, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		util.HTTPRes(res, "Malformed request data", http.StatusBadRequest)
+		return
+	}
+
+	switch req.Method {
+	case http.MethodDelete:
+		util.HTTPRes(res, "Not implemented", http.StatusNotImplemented)
+		return
+	}
+}
