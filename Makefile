@@ -1,4 +1,4 @@
-default: lint test
+default: lint build
 
 build:
 	go fmt ./...

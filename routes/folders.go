@@ -95,7 +95,7 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		util.HTTPRes(res, "Item added", http.StatusCreated)
+		util.HTTPRes(res, "Folder added", http.StatusCreated)
 		return
 	}
 }
