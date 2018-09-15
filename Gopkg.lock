@@ -34,17 +34,6 @@
   version = "v1.6.2"
 
 [[projects]]
-  branch = "master"
-  digest = "1:ceb58a3919d7fa15ebe02463a9b90552fade1e317604b2b3b4822cce3b13b2b5"
-  name = "github.com/jayden-chan/robotender-server"
-  packages = [
-    "db",
-    "util",
-  ]
-  pruneopts = "UT"
-  revision = "0490d8cd8b3166c5e17f0c1b456fcb640cb04ef2"
-
-[[projects]]
   digest = "1:8ef506fc2bb9ced9b151dafa592d4046063d744c646c1bbe801982ce87e4bc24"
   name = "github.com/lib/pq"
   packages = [
@@ -70,8 +59,6 @@
     "github.com/buger/jsonparser",
     "github.com/dgrijalva/jwt-go",
     "github.com/gorilla/mux",
-    "github.com/jayden-chan/robotender-server/db",
-    "github.com/jayden-chan/robotender-server/util",
     "github.com/lib/pq",
     "github.com/rs/cors",
   ]
