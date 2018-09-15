@@ -11,6 +11,7 @@ import (
 	"github.com/jayden-chan/ctl-server/util"
 )
 
+// Items gets the items for a user or adds a new item
 // URI: /items
 func Items(res http.ResponseWriter, req *http.Request) {
 	authSuccess, user, _ := util.Authenticate(req)

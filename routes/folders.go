@@ -13,8 +13,8 @@ import (
 	"github.com/jayden-chan/ctl-server/util"
 )
 
-// URI: /folders
 // Folders returns a list of the user's folders or adds a new folder
+// URI: /folders
 func Folders(res http.ResponseWriter, req *http.Request) {
 	authSuccess, user, _ := util.Authenticate(req)
 	if !authSuccess {
@@ -97,6 +97,7 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// FoldersID deletes or updates a given folder
 // URI: /folders/:id
 func FoldersID(res http.ResponseWriter, req *http.Request) {
 	authSuccess, user, _ := util.Authenticate(req)

@@ -9,6 +9,8 @@ import (
 	_ "github.com/lib/pq" // Blank import to make native sql package work with PostgreSQL
 )
 
+// JSONNullString is a wrapper around sql.NullString which implements
+// the MarshalJSON and UnmarshalJSON methods
 type JSONNullString struct {
 	sql.NullString
 }
@@ -18,9 +20,8 @@ type JSONNullString struct {
 func (s JSONNullString) MarshalJSON() ([]byte, error) {
 	if s.Valid {
 		return json.Marshal(s.String)
-	} else {
-		return json.Marshal(nil)
 	}
+	return json.Marshal(nil)
 }
 
 // UnmarshalJSON takes the raw data and decides whether it is

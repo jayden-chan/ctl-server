@@ -10,8 +10,8 @@ import (
 	"github.com/jayden-chan/ctl-server/util"
 )
 
-// Path: /register
 // Register registers a user in the database
+// Path: /register
 func Register(res http.ResponseWriter, req *http.Request) {
 	data, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -65,8 +65,8 @@ func Register(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// URI: /deregister
 // Deregister deletes a user from the database
+// URI: /deregister
 func Deregister(res http.ResponseWriter, req *http.Request) {
 	authSuccess, user, _ := util.Authenticate(req)
 	if !authSuccess {
@@ -86,8 +86,8 @@ func Deregister(res http.ResponseWriter, req *http.Request) {
 	return
 }
 
-// Path: /login
 // Login verifies a user's credentials and issues a JWT auth token
+// Path: /login
 func Login(res http.ResponseWriter, req *http.Request) {
 	data, err := ioutil.ReadAll(req.Body)
 	if err != nil {
