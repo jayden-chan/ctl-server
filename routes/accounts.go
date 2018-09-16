@@ -30,9 +30,9 @@ func Register(res http.ResponseWriter, req *http.Request) {
 	}
 	jsonparser.EachKey(data, func(idx int, value []byte, vt jsonparser.ValueType, err error) {
 		switch idx {
-		case 0: // email
+		case 0:
 			email = string(value)
-		case 1: // password
+		case 1:
 			password = string(value)
 		}
 	}, paths...)

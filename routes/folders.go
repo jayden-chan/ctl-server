@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"database/sql"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,7 +13,7 @@ import (
 )
 
 // Folders returns a list of the user's folders or adds a new folder
-// URI: /folders
+// Path: /folders
 func Folders(res http.ResponseWriter, req *http.Request) {
 	authSuccess, user, _ := util.Authenticate(req)
 	if !authSuccess {
@@ -62,7 +61,7 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 
 		var (
 			name   string
-			parent sql.NullString
+			parent db.JSONNullString
 		)
 
 		paths := [][]string{
@@ -98,7 +97,7 @@ func Folders(res http.ResponseWriter, req *http.Request) {
 }
 
 // FoldersID deletes or updates a given folder
-// URI: /folders/:id
+// Path: /folders/:id
 func FoldersID(res http.ResponseWriter, req *http.Request) {
 	authSuccess, user, _ := util.Authenticate(req)
 	if !authSuccess {
@@ -107,7 +106,7 @@ func FoldersID(res http.ResponseWriter, req *http.Request) {
 	}
 	folderID := mux.Vars(req)["folderID"]
 	if folderID == "" {
-		util.HTTPRes(res, "'Folder ID' field not found in request URI", http.StatusBadRequest)
+		util.HTTPRes(res, "'Folder ID' field not found in request URL", http.StatusBadRequest)
 		return
 	}
 
@@ -138,7 +137,7 @@ func FoldersID(res http.ResponseWriter, req *http.Request) {
 
 		var (
 			name   string
-			parent sql.NullString
+			parent db.JSONNullString
 		)
 		paths := [][]string{
 			[]string{"name"},

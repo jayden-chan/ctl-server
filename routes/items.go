@@ -13,7 +13,7 @@ import (
 )
 
 // Items gets the items for a user or adds a new item
-// URI: /items
+// Path: /items
 func Items(res http.ResponseWriter, req *http.Request) {
 	authSuccess, user, _ := util.Authenticate(req)
 	if !authSuccess {
@@ -115,7 +115,7 @@ func Items(res http.ResponseWriter, req *http.Request) {
 }
 
 // ItemsID deletes or updates the given item
-// URI: /items/:id
+// Path: /items/:id
 func ItemsID(res http.ResponseWriter, req *http.Request) {
 	authSuccess, user, _ := util.Authenticate(req)
 	if !authSuccess {
@@ -125,7 +125,7 @@ func ItemsID(res http.ResponseWriter, req *http.Request) {
 
 	itemID := mux.Vars(req)["itemID"]
 	if itemID == "" {
-		util.HTTPRes(res, "'Item ID' field not found in request URI", http.StatusBadRequest)
+		util.HTTPRes(res, "'Item ID' field not found in request URL", http.StatusBadRequest)
 		return
 	}
 

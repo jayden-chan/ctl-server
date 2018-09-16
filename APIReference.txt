@@ -6,4 +6,4 @@
 | /folders     | YES  | GET, POST     | Get or add folders        | YES  |
 | /folders/:id | YES  | DELETE, PATCH | Delete or modify a folder | YES  |
 | /items       | YES  | GET, POST     | Get or add items          | YES  |
-| /items/:id   | YES  | DELETE, PATCH | Delete or modify items    | NO   |
+| /items/:id   | YES  | DELETE, PATCH | Delete or modify items    | YES  |
