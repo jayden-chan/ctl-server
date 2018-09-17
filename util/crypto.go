@@ -17,6 +17,7 @@ func GenerateJWT(userID string, access string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user":   userID,
 		"access": access,
+		"nbf":    (time.Now().Add(time.Second * 2)).Unix(),
 		"iat":    time.Now().Unix(),
 	})
 

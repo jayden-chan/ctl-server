@@ -1,0 +1,28 @@
+version: 1
+
+requests:
+    register:
+        url: http://localhost:5000/register
+        method: POST
+        data:
+            json:
+                email: example@example.com
+                password: example
+
+    login:
+        url: http://localhost:5000/login
+        method: POST
+        data:
+            json:
+                email: example@example.com
+                password: example
+        validate:
+            json:
+                token: Type(String)
+
+    deregister:
+        delay: 2100
+        url: http://localhost:5000/deregister
+        method: DELETE
+        headers:
+            Authorization: Bearer Value(login.token)
