@@ -1,0 +1,10 @@
+version: 1
+
+requests:
+    registerFail:
+        url: http://localhost:5000/register
+        method: POST
+        data:
+            json:
+                email: sample@sample.com
+                password: password
